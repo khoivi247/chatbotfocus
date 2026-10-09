@@ -57,6 +57,12 @@ app.get('/', (req, res, next) => {
   });
 });
 
+app.get(['/app.js', '/styles.css'], (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'public', path.basename(req.path)), error => {
+    if (error) next(error);
+  });
+});
+
 app.post('/api/chat', async (req, res) => {
   const requestStartedAt = Date.now();
   console.info('Chat API request received.');
