@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('node:path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,7 +49,13 @@ const maxFileSize = 5 * 1024 * 1024;
 
 app.use(cors());
 app.use(express.json({ limit: '30mb' }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), error => {
+    if (error) next(error);
+  });
+});
 
 app.post('/api/chat', async (req, res) => {
   const requestStartedAt = Date.now();
@@ -224,6 +231,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
